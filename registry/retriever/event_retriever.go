@@ -94,6 +94,9 @@ func NewDefaultEventRetriever(
 func (e *eventRetriever) GetEvents(blockHash types.Hash) ([]*parser.Event, error) {
 	storageEvents, err := e.eventStorageExecutor.ExecWithFallback(
 		func() (*types.StorageDataRaw, error) {
+			if err := e.updateInternalState(&blockHash); err != nil {
+				return nil, err
+			}
 			return e.eventProvider.GetStorageEvents(e.meta, blockHash)
 		},
 		func() error {
